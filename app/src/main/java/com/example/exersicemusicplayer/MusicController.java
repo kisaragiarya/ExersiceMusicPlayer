@@ -10,5 +10,6 @@ public class MusicController extends MediaController {
         super(context);
     }
 
+
     public void hide() {}
 }

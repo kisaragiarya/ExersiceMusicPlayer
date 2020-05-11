@@ -158,7 +158,6 @@ public class MusicServicce extends Service implements
     public void pausePlayer(){
         player.pause();
     }
-
     public void seek(int posn){
         player.seekTo(posn);
     }

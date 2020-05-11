@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl{
 
+    private boolean paused=false, playbackPaused=false;
     private MusicController controller;
     private MusicServicce musicSrv;
     private Intent playIntent;
@@ -89,6 +90,35 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        paused=true;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(paused){
+            setController();
+            paused=false;
+        }
+    }
+    @Override
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
+    }
+
+    public void songPicked(View view){
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        controller.show(0);
     }
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
@@ -151,12 +181,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private void playNext(){
         musicSrv.playNext();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
         controller.show(0);
     }
 
-    //play previous
     private void playPrev(){
         musicSrv.playPrev();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
         controller.show(0);
     }
 
