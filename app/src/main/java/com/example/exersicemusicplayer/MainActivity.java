@@ -1,11 +1,16 @@
 package com.example.exersicemusicplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -19,7 +24,11 @@ import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import com.example.exersicemusicplayer.MusicServicce.MusicBinder;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
+
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl{
 
@@ -33,10 +42,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setController();
-        SongAdapter songAdt = new SongAdapter(this, songList);
-        songView.setAdapter(songAdt);
-        songView = (ListView)findViewById(R.id.song_list);
+        songView = findViewById(R.id.song_list);
         songList = new ArrayList<Song>();
         getSongList();
         Collections.sort(songList, new Comparator<Song>(){
@@ -44,7 +50,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
+        SongAdapter songAdt = new SongAdapter(this, songList);
+        songView.setAdapter(songAdt);
+        setController();
     }
+
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -65,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
     @Override
@@ -118,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
     private void setController(){
+        controller = new MusicController(this);
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         controller.setAnchorView(findViewById(R.id.song_list));
         controller.setEnabled(true);
     }
+
     private void playNext(){
         musicSrv.playNext();
         controller.show(0);
