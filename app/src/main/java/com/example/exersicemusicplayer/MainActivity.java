@@ -18,9 +18,11 @@ import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import com.example.exersicemusicplayer.MusicServicce.MusicBinder;
+import android.widget.MediaController.MediaPlayerControl;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl{
 
+    private MusicController controller;
     private MusicServicce musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setController();
         SongAdapter songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
         songView = (ListView)findViewById(R.id.song_list);
@@ -92,4 +95,89 @@ public class MainActivity extends AppCompatActivity {
             while (musicCursor.moveToNext());
         }
     }
+    private void setController(){
+        controller.setPrevNextListeners(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNext();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPrev();
+            }
+        });
+        controller.setMediaPlayer(this);
+        controller.setAnchorView(findViewById(R.id.song_list));
+        controller.setEnabled(true);
+    }
+    private void playNext(){
+        musicSrv.playNext();
+        controller.show(0);
+    }
+
+    //play previous
+    private void playPrev(){
+        musicSrv.playPrev();
+        controller.show(0);
+    }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    public void pause() {
+        musicSrv.pausePlayer();
+    }
+
+    @Override
+    public int getDuration() {
+        return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public void start() {
+        musicSrv.go();
+    }
+    @Override
+    public int getCurrentPosition() {
+        if(musicSrv!=null && musicBound &&  musicSrv.isPng())
+        return musicSrv.getPosn();
+  else return 0;
+    }
+    @Override
+    public boolean isPlaying() {
+        if(musicSrv!=null &&musicBound)
+        return musicSrv.isPng();
+        return false;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
 }
+
+
